@@ -1,0 +1,327 @@
+<!-- Modified for the dengjie86 bilingual subtitle edition; see CHANGELOG.md. -->
+<Window
+    x:Class="LiveCaptionsTranslator.OverlayWindow"
+    xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+    xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+    xmlns:local="clr-namespace:LiveCaptionsTranslator"
+    xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+    xmlns:ui="http://schemas.lepo.co/wpfui/2022/xaml"
+    Title="Overlay Window"
+    Width="650"
+    Height="135"
+    MinWidth="650"
+    MinHeight="135"
+    AllowsTransparency="True"
+    Background="Transparent"
+    MouseEnter="Window_MouseEnter"
+    MouseLeave="Window_MouseLeave"
+    ResizeMode="CanResize"
+    ShowInTaskbar="False"
+    Topmost="True"
+    WindowStyle="None"
+    SizeToContent="Height"
+    mc:Ignorable="d">
+
+    <Window.Resources>
+        <Style x:Key="TransparentThumbStyle" TargetType="Thumb">
+            <Setter Property="Background" Value="Transparent" />
+            <Setter Property="BorderBrush" Value="Transparent" />
+            <Setter Property="BorderThickness" Value="0" />
+            <Setter Property="Opacity" Value="0" />
+        </Style>
+    </Window.Resources>
+
+    <Grid>
+        <Border
+            x:Name="BorderBackground"
+            Margin="5"
+            Background="#80000000"
+            CornerRadius="8"
+            MouseLeftButtonDown="Border_MouseLeftButtonDown">
+            <Grid>
+                <Grid.RowDefinitions>
+                    <RowDefinition Height="Auto" />
+                    <RowDefinition Height="Auto" />
+                </Grid.RowDefinitions>
+                <Grid.Resources>
+                    <Style x:Key="CaptionBlockStyle" TargetType="TextBlock">
+                        <Setter Property="TextWrapping" Value="Wrap" />
+                        <Setter Property="VerticalAlignment" Value="Stretch" />
+                    </Style>
+                </Grid.Resources>
+
+                <ScrollViewer x:Name="CaptionScroller" Grid.Row="0" MaxHeight="280"
+                              VerticalScrollBarVisibility="Auto" HorizontalScrollBarVisibility="Disabled"
+                              CanContentScroll="False" Focusable="False">
+                <StackPanel x:Name="CaptionStack">
+                    <StackPanel.RenderTransform>
+                        <TranslateTransform x:Name="CaptionScrollTransform" />
+                    </StackPanel.RenderTransform>
+                    <ItemsControl x:Name="CaptionHistory" ItemsSource="{Binding OverlayHistory}" Opacity="0.68">
+                        <ItemsControl.ItemTemplate>
+                            <DataTemplate>
+                                <Border Margin="13,6,13,6" Padding="0,0,0,10"
+                                        BorderBrush="#30FFFFFF" BorderThickness="0,0,0,1">
+                                    <Grid>
+                                        <Grid.RowDefinitions>
+                                            <RowDefinition Height="Auto" />
+                                            <RowDefinition Height="Auto" />
+                                        </Grid.RowDefinitions>
+                                        <local:StrokeDecorator
+                                            Grid.Row="{Binding RelativeSource={RelativeSource AncestorType=ItemsControl}, Path=Tag.SourceCard.(Grid.Row)}"
+                                            Visibility="{Binding RelativeSource={RelativeSource AncestorType=ItemsControl}, Path=Tag.SourceCard.Visibility}"
+                                            Stroke="Black"
+                                            StrokeThickness="{Binding RelativeSource={RelativeSource AncestorType=ItemsControl}, Path=Tag.SourceStroke.StrokeThickness}">
+                                            <TextBlock x:Name="HistoryOriginal" Text="{Binding OriginalText}" TextWrapping="Wrap"
+                                                AutomationProperties.AutomationId="{Binding Sequence, StringFormat='HistoryOriginal_{0}'}"
+                                                FontSize="{Binding RelativeSource={RelativeSource AncestorType=ItemsControl}, Path=Tag.Source.FontSize}"
+                                                FontWeight="{Binding RelativeSource={RelativeSource AncestorType=ItemsControl}, Path=Tag.Source.FontWeight}"
+                                                Foreground="{Binding RelativeSource={RelativeSource AncestorType=ItemsControl}, Path=Tag.Source.Foreground}" />
+                                        </local:StrokeDecorator>
+                                        <local:StrokeDecorator Margin="0,6,0,0"
+                                            Grid.Row="{Binding RelativeSource={RelativeSource AncestorType=ItemsControl}, Path=Tag.TranslationCard.(Grid.Row)}"
+                                            Visibility="{Binding RelativeSource={RelativeSource AncestorType=ItemsControl}, Path=Tag.TranslationCard.Visibility}"
+                                            Stroke="Black"
+                                            StrokeThickness="{Binding RelativeSource={RelativeSource AncestorType=ItemsControl}, Path=Tag.TranslationStroke.StrokeThickness}">
+                                            <TextBlock x:Name="HistoryTranslation" Text="{Binding TranslatedText}" TextWrapping="Wrap"
+                                                AutomationProperties.AutomationId="{Binding Sequence, StringFormat='HistoryTranslation_{0}'}"
+                                                FontSize="{Binding RelativeSource={RelativeSource AncestorType=ItemsControl}, Path=Tag.Translation.FontSize}"
+                                                FontWeight="{Binding RelativeSource={RelativeSource AncestorType=ItemsControl}, Path=Tag.Translation.FontWeight}"
+                                                Foreground="{Binding RelativeSource={RelativeSource AncestorType=ItemsControl}, Path=Tag.TranslationRun.Foreground}" />
+                                        </local:StrokeDecorator>
+                                    </Grid>
+                                </Border>
+                            </DataTemplate>
+                        </ItemsControl.ItemTemplate>
+                    </ItemsControl>
+                <Grid x:Name="ActiveCaptionPair">
+                    <Grid.RowDefinitions>
+                        <RowDefinition Height="Auto" />
+                        <RowDefinition Height="Auto" />
+                    </Grid.RowDefinitions>
+                <ui:Card
+                    x:Name="TranslatedCaptionCard"
+                    Grid.Row="1"
+                    Margin="5,2,5,2"
+                    Padding="8,4"
+                    VerticalAlignment="Top"
+                    Background="Transparent"
+                    BorderThickness="0">
+                    <local:StrokeDecorator
+                        x:Name="TranslatedCaptionDecorator"
+                        Stroke="Black"
+                        StrokeThickness="0">
+                        <TextBlock
+                            x:Name="TranslatedCaption"
+                            FontSize="18"
+                            Style="{StaticResource CaptionBlockStyle}"><Run x:Name="PreviousTranslationRun" Text="" /><Run x:Name="CurrentTranslationRun" Text="{Binding OverlayCurrentTranslation, UpdateSourceTrigger=PropertyChanged}" /><Run x:Name="NoticePrefixRun" Text="{Binding OverlayNoticePrefix, UpdateSourceTrigger=PropertyChanged, StringFormat='  {0}'}" FontFamily="Consolas" /></TextBlock>
+                    </local:StrokeDecorator>
+                </ui:Card>
+                <ui:Card
+                    x:Name="OriginalCaptionCard"
+                    Grid.Row="0"
+                    Margin="5,2,5,2"
+                    Padding="8,4"
+                    VerticalAlignment="Top"
+                    Background="Transparent"
+                    BorderThickness="0">
+                    <local:StrokeDecorator
+                        x:Name="OriginalCaptionDecorator"
+                        Stroke="Black"
+                        StrokeThickness="0">
+                        <TextBlock
+                            x:Name="OriginalCaption"
+                            FontSize="15"
+                            Style="{StaticResource CaptionBlockStyle}"
+                            Text="{Binding OverlayOriginalCaption, UpdateSourceTrigger=PropertyChanged}">
+                        </TextBlock>
+                    </local:StrokeDecorator>
+                </ui:Card>
+
+                </Grid>
+                </StackPanel>
+                </ScrollViewer>
+
+                <StackPanel
+                    x:Name="ControlPanel"
+                    Grid.Row="1"
+                    Margin="0,0,5,5"
+                    HorizontalAlignment="Right"
+                    VerticalAlignment="Bottom"
+                    Orientation="Horizontal"
+                    Visibility="Hidden">
+                    <ui:Button
+                        x:Name="FontSizeIncrease"
+                        Background="#FFAAAAAA"
+                        Click="FontIncrease_Click"
+                        Cursor="Hand"
+                        Icon="{ui:SymbolIcon fontIncrease20,
+                                             Filled=False}"
+                        ToolTip="增大字号" />
+                    <ui:Button
+                        x:Name="FontSizeDecrease"
+                        Background="#FFAAAAAA"
+                        Click="FontDecrease_Click"
+                        Cursor="Hand"
+                        Icon="{ui:SymbolIcon fontDecrease20,
+                                             Filled=False}"
+                        ToolTip="减小字号" />
+                    <ui:Button
+                        x:Name="FontStrokeIncrease"
+                        Background="#FFAAAAAA"
+                        Click="FontStrokeIncrease_Click"
+                        Cursor="Hand"
+                        Icon="{ui:SymbolIcon InkStroke20,
+                                             Filled=True}"
+                        ToolTip="加粗文字描边" />
+                    <ui:Button
+                        x:Name="FontStrokeDecrease"
+                        Background="#FFAAAAAA"
+                        Click="FontStrokeDecrease_Click"
+                        Cursor="Hand"
+                        Icon="{ui:SymbolIcon InkStrokeArrowDown20,
+                                             Filled=False}"
+                        ToolTip="减细文字描边" />
+                    <ui:Button
+                        x:Name="FontBold"
+                        Background="#FFAAAAAA"
+                        Click="FontBold_Click"
+                        Cursor="Hand"
+                        Icon="{ui:SymbolIcon textBold16,
+                                             Filled=False}"
+                        ToolTip="切换文字加粗" />
+                    <ui:Button
+                        x:Name="FontColorCycle"
+                        Background="#FFAAAAAA"
+                        Click="FontColorCycle_Click"
+                        Cursor="Hand"
+                        Icon="{ui:SymbolIcon color16,
+                                             Filled=False}"
+                        ToolTip="切换文字颜色" />
+
+                    <ui:Button
+                        x:Name="OpacityIncrease"
+                        Margin="5,0,0,0"
+                        Background="#FFAAAAAA"
+                        Click="BackgroundOpacityIncrease_Click"
+                        Cursor="Hand"
+                        Icon="{ui:SymbolIcon arrowAutofitUp20,
+                                             Filled=False}"
+                        ToolTip="加深背景" />
+                    <ui:Button
+                        x:Name="OpacityDecrease"
+                        Background="#FFAAAAAA"
+                        Click="BackgroundOpacityDecrease_Click"
+                        Cursor="Hand"
+                        Icon="{ui:SymbolIcon arrowAutofitDown20,
+                                             Filled=False}"
+                        ToolTip="减淡背景" />
+                    <ui:Button
+                        x:Name="BackgroundColorCycle"
+                        Background="#FFAAAAAA"
+                        Click="BackgroundColorCycle_Click"
+                        Cursor="Hand"
+                        Icon="{ui:SymbolIcon color16,
+                                             Filled=False}"
+                        ToolTip="切换背景颜色" />
+
+                    <ui:Button
+                        x:Name="OnlyModeButton"
+                        Margin="5,0,0,0"
+                        Background="#FFAAAAAA"
+                        Click="OnlyModeButton_Click"
+                        Cursor="Hand"
+                        Icon="{ui:SymbolIcon PanelBottom20,
+                                             Filled=False}"
+                        ToolTip="切换显示：双语／仅译文／仅原文" />
+                    <ui:Button
+                        x:Name="SwitchModeButton"
+                        Background="#FFAAAAAA"
+                        Click="SwitchModeButton_Click"
+                        Cursor="Hand"
+                        Icon="{ui:SymbolIcon ArrowSyncCircle20,
+                                             Filled=False}"
+                        ToolTip="交换原文与译文位置" />
+                    <ui:Button
+                        x:Name="ClickThrough"
+                        Background="#FFAAAAAA"
+                        Click="ClickThrough_Click"
+                        Cursor="Hand"
+                        Icon="{ui:SymbolIcon lockClosed16,
+                                             Filled=False}"
+                        ToolTip="鼠标穿透（锁定悬浮字幕）" />
+                </StackPanel>
+            </Grid>
+        </Border>
+
+        <Thumb
+            x:Name="TopThumb"
+            Height="10"
+            HorizontalAlignment="Stretch"
+            VerticalAlignment="Top"
+            Cursor="SizeNS"
+            DragDelta="TopThumb_OnDragDelta"
+            Style="{StaticResource TransparentThumbStyle}" />
+        <Thumb
+            x:Name="BottomThumb"
+            Height="10"
+            HorizontalAlignment="Stretch"
+            VerticalAlignment="Bottom"
+            Cursor="SizeNS"
+            DragDelta="BottomThumb_OnDragDelta"
+            Style="{StaticResource TransparentThumbStyle}" />
+        <Thumb
+            x:Name="LeftThumb"
+            Width="10"
+            HorizontalAlignment="Left"
+            VerticalAlignment="Stretch"
+            Cursor="SizeWE"
+            DragDelta="LeftThumb_OnDragDelta"
+            Style="{StaticResource TransparentThumbStyle}" />
+        <Thumb
+            x:Name="RightThumb"
+            Width="10"
+            HorizontalAlignment="Right"
+            VerticalAlignment="Stretch"
+            Cursor="SizeWE"
+            DragDelta="RightThumb_OnDragDelta"
+            Style="{StaticResource TransparentThumbStyle}" />
+        <Thumb
+            x:Name="TopLeftThumb"
+            Width="10"
+            Height="10"
+            HorizontalAlignment="Left"
+            VerticalAlignment="Top"
+            Cursor="SizeNWSE"
+            DragDelta="TopLeftThumb_OnDragDelta"
+            Style="{StaticResource TransparentThumbStyle}" />
+        <Thumb
+            x:Name="TopRightThumb"
+            Width="10"
+            Height="10"
+            HorizontalAlignment="Right"
+            VerticalAlignment="Top"
+            Cursor="SizeNESW"
+            DragDelta="TopRightThumb_OnDragDelta"
+            Style="{StaticResource TransparentThumbStyle}" />
+        <Thumb
+            x:Name="BottomLeftThumb"
+            Width="10"
+            Height="10"
+            HorizontalAlignment="Left"
+            VerticalAlignment="Bottom"
+            Cursor="SizeNESW"
+            DragDelta="BottomLeftThumb_OnDragDelta"
+            Style="{StaticResource TransparentThumbStyle}" />
+        <Thumb
+            x:Name="BottomRightThumb"
+            Width="10"
+            Height="10"
+            HorizontalAlignment="Right"
+            VerticalAlignment="Bottom"
+            Cursor="SizeNWSE"
+            DragDelta="BottomRightThumb_OnDragDelta"
+            Style="{StaticResource TransparentThumbStyle}" />
+    </Grid>
+</Window>

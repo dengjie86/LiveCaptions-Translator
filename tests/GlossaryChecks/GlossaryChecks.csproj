@@ -1,0 +1,13 @@
+<Project Sdk="Microsoft.NET.Sdk">
+  <PropertyGroup>
+    <OutputType>Exe</OutputType><TargetFramework>net8.0-windows</TargetFramework><UseWPF>true</UseWPF>
+    <ImplicitUsings>enable</ImplicitUsings><Nullable>enable</Nullable>
+  </PropertyGroup>
+  <ItemGroup>
+    <PackageReference Include="WPF-UI" Version="4.0.1" />
+    <Compile Include="../../src/models/GlossaryStore.cs" Link="GlossaryStore.cs" />
+    <Compile Include="../../src/models/GlossaryExamples.cs" Link="GlossaryExamples.cs" />
+    <Compile Include="../../src/windows/GlossaryWindow.xaml.cs" Link="GlossaryWindow.xaml.cs" />
+    <Page Include="../../src/windows/GlossaryWindow.xaml" Link="GlossaryWindow.xaml" />
+  </ItemGroup>
+</Project>

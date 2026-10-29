@@ -1,0 +1,17 @@
+LiveCaptions Translator — bilingual subtitle edition
+
+Based on LiveCaptions-Translator by SakiRinn and other contributors.
+Upstream: https://github.com/SakiRinn/LiveCaptions-Translator
+Base revision: d6d8394 (1.7.1300.1822).
+Copyright 2024 SakiRinn and other contributors.
+
+This edition is maintained at:
+https://github.com/dengjie86/LiveCaptions-Translator
+
+Modifications include local Qwen ASR integration, paired bilingual captions,
+rolling history, progressive source display, default-output device following,
+a Chinese glossary manager and streaming OpenAI-compatible translation.
+See CHANGELOG.md. Distributed under Apache License 2.0; see LICENSE.
+
+Qwen model weights and Python/GPU dependencies are installed separately and
+are not included in this repository or its Windows release archive.

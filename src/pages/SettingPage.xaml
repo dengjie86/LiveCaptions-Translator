@@ -1,0 +1,320 @@
+<!-- Modified for the dengjie86 bilingual subtitle edition; see CHANGELOG.md. -->
+<Page
+    x:Class="LiveCaptionsTranslator.SettingPage"
+    xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+    xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+    xmlns:local="clr-namespace:LiveCaptionsTranslator"
+    xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+    xmlns:ui="http://schemas.lepo.co/wpfui/2022/xaml"
+    Title="设置"
+    JournalEntry.KeepAlive="False"
+    mc:Ignorable="d">
+
+    <Grid Margin="15">
+        <Grid.RowDefinitions>
+            <RowDefinition Height="Auto" />
+            <RowDefinition Height="Auto" />
+        </Grid.RowDefinitions>
+        <Grid.ColumnDefinitions>
+            <ColumnDefinition Width="Auto" />
+            <ColumnDefinition Width="Auto" />
+            <ColumnDefinition Width="Auto" />
+            <ColumnDefinition Width="Auto" />
+            <ColumnDefinition Width="Auto" />
+        </Grid.ColumnDefinitions>
+
+        <StackPanel Grid.Row="0" Grid.ColumnSpan="5" Margin="15,0,0,12" Orientation="Horizontal">
+            <TextBlock VerticalAlignment="Center" Text="语音识别" Margin="0,0,10,0" />
+            <ComboBox x:Name="RecognitionBackendBox" Width="185" Height="30"
+                      SelectedValuePath="Tag"
+                      SelectedValue="{Binding RecognitionBackend, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}">
+                <ComboBoxItem Tag="Windows" Content="Windows 实时字幕" />
+                <ComboBoxItem Tag="Qwen0.6B" Content="Qwen 0.6B（本地）" />
+                <ComboBoxItem Tag="Qwen1.7B" Content="Qwen 1.7B（本地）" />
+            </ComboBox>
+            <TextBlock VerticalAlignment="Center" Margin="12,0,0,0" FontSize="12"
+                       Text="切换后重启程序；Qwen 自动识别语言" />
+        </StackPanel>
+
+        <StackPanel Grid.Row="1" Grid.Column="0" Orientation="Vertical">
+            <StackPanel Margin="15,0,0,0" Orientation="Vertical">
+                <StackPanel VerticalAlignment="Center" Orientation="Horizontal">
+                    <TextBlock Margin="2.5,0,0,5" Text="Windows 字幕" />
+                    <ui:Flyout x:Name="LiveCaptionsInfoFlyout">
+                        <TextBlock Width="300" TextWrapping="Wrap">
+                            <Run Text="使用 Windows 识别时，请在 Windows 实时字幕中设置" />
+                            <Run FontWeight="DemiBold" TextDecorations="Underline" Text="语音语言" />
+                            <Run Text="。Qwen 会自动识别语言，无需打开 Windows 实时字幕。" />
+                            <Run FontWeight="Bold" Text="&#x0A;&#x0A;注意：" />
+                            <Run Text="请点击" />
+                            <Run FontWeight="Bold" Text="“隐藏”" />
+                            <Run Text="来收起 Windows 实时字幕，直接关闭它会中断 Windows 识别。" />
+                        </TextBlock>
+                    </ui:Flyout>
+                    <Button
+                        x:Name="LiveCaptionsInfo"
+                        Width="15"
+                        Height="15"
+                        Margin="-5,-3,0,0"
+                        Padding="0"
+                        Background="Transparent"
+                        BorderThickness="0"
+                        MouseEnter="LiveCaptionsInfo_MouseEnter"
+                        MouseLeave="LiveCaptionsInfo_MouseLeave">
+                        <ui:SymbolIcon Symbol="Info16" />
+                    </Button>
+                </StackPanel>
+                <ui:Button
+                    x:Name="LiveCaptionsButton"
+                    Width="120"
+                    Height="30"
+                    Padding="11,4,11,4"
+                    Click="LiveCaptionsButton_click">
+                    <TextBlock x:Name="ButtonText" Text="显示" />
+                </ui:Button>
+            </StackPanel>
+
+            <StackPanel Margin="15,10,0,0" Orientation="Vertical">
+                <StackPanel VerticalAlignment="Center" Orientation="Horizontal">
+                    <TextBlock Margin="2.5,0,0,5" Text="旧版调用间隔" />
+                    <ui:Flyout x:Name="FrequencyInfoFlyout">
+                        <TextBlock Width="300" TextWrapping="Wrap">
+                            <Run Text="这是原版程序保留的设置。当前版本会在一句字幕定稿后提交翻译。" />
+                            <Run Text="&#x0A;调整" />
+                            <Run FontWeight="SemiBold" Text="此间隔" />
+                            <Run Text="不会改变当前版本的断句或翻译速度。" />
+                        </TextBlock>
+                    </ui:Flyout>
+                    <Button
+                        x:Name="FrequencyInfo"
+                        Width="15"
+                        Height="15"
+                        Margin="-5,-3,0,0"
+                        Padding="0"
+                        Background="Transparent"
+                        BorderThickness="0"
+                        MouseEnter="FrequencyInfo_MouseEnter"
+                        MouseLeave="FrequencyInfo_MouseLeave">
+                        <ui:SymbolIcon Symbol="Info16" />
+                    </Button>
+                </StackPanel>
+                <StackPanel Orientation="Horizontal">
+                    <Slider
+                        Width="120"
+                        Margin="0,0,5,0"
+                        AutoToolTipPlacement="TopLeft"
+                        AutoToolTipPrecision="0"
+                        Maximum="10"
+                        Value="{Binding MaxSyncInterval, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" />
+                </StackPanel>
+            </StackPanel>
+        </StackPanel>
+
+        <StackPanel Grid.Row="1" Grid.Column="1" Orientation="Vertical">
+            <StackPanel Margin="15,0,0,0" Orientation="Vertical">
+                <StackPanel VerticalAlignment="Center" Orientation="Horizontal">
+                    <TextBlock Margin="2.5,0,0,5" Text="翻译服务" />
+                    <ui:Flyout x:Name="TranslateAPIInfoFlyout">
+                        <TextBlock
+                            Width="300"
+                            Text="除 Google 和 Google2 外，其他服务需要先填写 API 配置。使用 DeepSeek 时请选择 OpenAI，并在 API 配置中填写兼容接口地址、模型名称和密钥。"
+                            TextWrapping="Wrap" />
+                    </ui:Flyout>
+                    <Button
+                        x:Name="TranslateAPIInfo"
+                        Width="15"
+                        Height="15"
+                        Margin="-5,-3,0,0"
+                        Padding="0"
+                        Background="Transparent"
+                        BorderThickness="0"
+                        MouseEnter="TranslateAPIInfo_MouseEnter"
+                        MouseLeave="TranslateAPIInfo_MouseLeave">
+                        <ui:SymbolIcon Symbol="Info16" />
+                    </Button>
+                </StackPanel>
+                <ComboBox
+                    x:Name="TranslateAPIBox"
+                    Width="150"
+                    Height="30"
+                    Padding="10,4,10,7"
+                    FontSize="13.3"
+                    SelectedItem="{Binding ApiName, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"
+                    SelectionChanged="TranslateAPIBox_SelectionChanged" />
+            </StackPanel>
+
+            <StackPanel Margin="15,10,0,0" Orientation="Vertical">
+                <StackPanel VerticalAlignment="Center" Orientation="Horizontal">
+                    <TextBlock
+                        Margin="2.5,0,0,5"
+                        VerticalAlignment="Center"
+                        Text="翻译目标语言" />
+                    <ui:Flyout x:Name="TargetLangInfoFlyout">
+                        <TextBlock Width="350" TextWrapping="Wrap">
+                            <Run FontWeight="DemiBold" TextDecorations="Underline" Text="找不到需要的目标语言？" />
+                            <Run Text="&#x0A;可以在下拉框中直接输入语言代码，建议使用" />
+                            <Run FontWeight="Bold" Text="BCP 47 语言标签（如 zh-CN 为简体中文、ja-JP 为日语）。" />
+                            <Run FontWeight="Bold" Text="&#x0A;&#x0A;注意：" />
+                            <Run Text="部分服务（如 DeepL）使用不同的语言代码，具体请参考该服务的文档。" />
+                            <Run Text="&#x0A;列表中的语言已内置代码映射，直接选择即可；自定义语言时需要确认服务是否支持。" />
+                        </TextBlock>
+                    </ui:Flyout>
+                    <Button
+                        x:Name="TargetLangInfo"
+                        Width="15"
+                        Height="15"
+                        Margin="-5,-3,0,0"
+                        Padding="0"
+                        Background="Transparent"
+                        BorderThickness="0"
+                        MouseEnter="TargetLangInfo_MouseEnter"
+                        MouseLeave="TargetLangInfo_MouseLeave">
+                        <ui:SymbolIcon Symbol="Info16" />
+                    </Button>
+                </StackPanel>
+                <ComboBox
+                    x:Name="TargetLangBox"
+                    Width="150"
+                    Height="30"
+                    Padding="10,4,10,7"
+                    FontSize="13.3"
+                    IsEditable="True"
+                    LostFocus="TargetLangBox_LostFocus"
+                    SelectionChanged="TargetLangBox_SelectionChanged" />
+            </StackPanel>
+        </StackPanel>
+
+        <StackPanel Grid.Row="1" Grid.Column="2" Orientation="Vertical">
+            <StackPanel Margin="15,0,0,0" Orientation="Vertical">
+                <StackPanel VerticalAlignment="Center" Orientation="Horizontal">
+                    <TextBlock Margin="2.5,0,0,5" Text="API 配置" />
+                </StackPanel>
+                <ui:Button
+                    x:Name="APISettingButton"
+                    Width="100"
+                    Height="30"
+                    Padding="11,4,11,4"
+                    Click="APISettingButton_click">
+                    <TextBlock Text="打开配置" />
+                </ui:Button>
+            </StackPanel>
+            <StackPanel Margin="15,10,0,0" Orientation="Vertical">
+                <TextBlock Margin="2.5,0,0,5" Text="显示翻译耗时" />
+                <ui:ToggleSwitch
+                    Width="100"
+                    Height="30"
+                    Padding="10,4,10,7"
+                    IsChecked="{Binding MainWindow.LatencyShow, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"
+                    OffContent="关"
+                    OnContent="开" />
+            </StackPanel>
+        </StackPanel>
+
+        <StackPanel Grid.Row="1" Grid.Column="3" Orientation="Vertical">
+            <StackPanel Margin="15,0,0,0" Orientation="Vertical">
+                <StackPanel VerticalAlignment="Center" Orientation="Horizontal">
+                    <TextBlock Margin="2.5,0,0,5" Text="上下文句数" />
+                    <ui:Flyout x:Name="CaptionLogMaxInfoFlyout">
+                        <TextBlock Width="300" TextWrapping="Wrap">
+                            <Run FontWeight="Bold" Text="上下文句数：" />
+                            <Run Text="开启" />
+                            <Run FontWeight="Bold" Text="结合上下文翻译" />
+                            <Run Text="后，提供给翻译服务的历史句数。" />
+                            <Run FontWeight="Bold" Text="&#x0A;主窗口历史句数：" />
+                            <Run Text="开启主窗口的" />
+                            <Run FontWeight="Bold" Text="历史字幕卡片" />
+                            <Run Text="后，显示的历史卡片数。悬浮字幕独立保留当前一组及前两组日中字幕，不受此数值影响。" />
+                            <Run FontWeight="Bold" Text="&#x0A;&#x0A;注意：" />
+                            <Run Text="上下文句数必须" />
+                            <Run FontWeight="Bold" Text="大于或等于" />
+                            <Run Text="主窗口历史句数；不满足时会自动调整。" />
+                        </TextBlock>
+                    </ui:Flyout>
+                    <Button
+                        x:Name="CaptionLogMaxInfo"
+                        Width="15"
+                        Height="15"
+                        Margin="-5,-3,0,0"
+                        Padding="0"
+                        Background="Transparent"
+                        BorderThickness="0"
+                        MouseEnter="CaptionLogMaxInfo_MouseEnter"
+                        MouseLeave="CaptionLogMaxInfo_MouseLeave">
+                        <ui:SymbolIcon Symbol="Info16" />
+                    </Button>
+                </StackPanel>
+                <ui:NumberBox
+                    Width="135"
+                    Height="30"
+                    Padding="10,4,10,7"
+                    FontSize="13.3"
+                    ClearButtonEnabled="False"
+                    AcceptsExpression="False"
+                    SpinButtonPlacementMode="Inline"
+                    Maximum="10"
+                    Minimum="1"
+                    LargeChange="1"
+                    SmallChange="1"
+                    Value="{Binding NumContexts, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"
+                    ValueChanged="Contexts_ValueChanged" />
+            </StackPanel>
+
+            <StackPanel Margin="15,10,0,0" Orientation="Vertical">
+                <TextBlock Margin="2.5,0,0,5" Text="主窗口历史句数" />
+                <ui:NumberBox
+                    Width="135"
+                    Height="30"
+                    Padding="10,4,10,7"
+                    FontSize="13.3"
+                    ClearButtonEnabled="False"
+                    AcceptsExpression="False"
+                    SpinButtonPlacementMode="Inline"
+                    Maximum="6"
+                    Minimum="0"
+                    LargeChange="1"
+                    SmallChange="1"
+                    Value="{Binding DisplaySentences, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"
+                    ValueChanged="DisplaySentences_ValueChanged" />
+            </StackPanel>
+        </StackPanel>
+
+        <StackPanel Grid.Row="1" Grid.Column="4" Orientation="Vertical">
+            <StackPanel Margin="15,0,0,0" Orientation="Vertical">
+                <TextBlock Margin="2.5,0,0,5" Text="结合上下文翻译" />
+                <StackPanel VerticalAlignment="Center" Orientation="Horizontal">
+                    <ui:ToggleSwitch
+                        Width="90"
+                        Height="30"
+                        Padding="10,4,10,7"
+                        IsChecked="{Binding ContextAware, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"
+                        OffContent="关"
+                        OnContent="开" />
+                    <Button
+                        x:Name="ContextAwareInfo"
+                        Width="15"
+                        Height="15"
+                        Margin="-5,-3,0,0"
+                        Padding="0"
+                        Background="Transparent"
+                        BorderThickness="0"
+                        MouseEnter="ContextAwareInfo_MouseEnter"
+                        MouseLeave="ContextAwareInfo_MouseLeave">
+                        <ui:SymbolIcon Symbol="Info16" />
+                    </Button>
+                    <ui:Flyout x:Name="ContextAwareInfoFlyout">
+                        <TextBlock Width="300" TextWrapping="Wrap">
+                            <Run Text="翻译时参考前面的句子，有助于理解省略、指代和前后关系。" />
+                            <Run Text="&#x0A;会增加发送给模型的文本量和 token 用量。" />
+                        </TextBlock>
+                    </ui:Flyout>
+                </StackPanel>
+            </StackPanel>
+            <StackPanel Margin="15,10,0,0" Orientation="Vertical">
+                <TextBlock Margin="2.5,0,0,5" Text="术语库" />
+                <ui:Button x:Name="GlossaryButton" Width="110" Height="30" Padding="11,4,11,4"
+                           Content="管理词条" Click="GlossaryButton_Click" />
+            </StackPanel>
+        </StackPanel>
+    </Grid>
+</Page>

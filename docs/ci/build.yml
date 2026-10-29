@@ -1,0 +1,33 @@
+name: Build and checks
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  windows:
+    runs-on: windows-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-dotnet@v4
+        with:
+          dotnet-version: '8.0.x'
+      - name: Caption alignment checks
+        run: dotnet run --project tests/AlignmentChecks/AlignmentChecks.csproj
+      - name: Streaming checks
+        run: dotnet run --project tests/StreamChecks/StreamChecks.csproj
+      - name: Publish Windows x64
+        run: dotnet publish LiveCaptionsTranslator.csproj -c Release -r win-x64 --self-contained true -o artifacts/publish
+      - uses: actions/upload-artifact@v4
+        with:
+          name: Windows-x64-build
+          path: |
+            artifacts/publish/LiveCaptionsTranslator.exe
+            artifacts/publish/qwen-asr/*.py
+            artifacts/publish/qwen-asr/requirements.txt
+          retention-days: 7

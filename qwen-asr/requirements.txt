@@ -1,0 +1,7 @@
+# Install the GPU-enabled torch wheel separately in the dedicated Conda environment.
+torch==2.11.0+cu128
+torchvision==0.26.0
+numpy==1.26.4
+qwen-asr==0.0.6
+PyAudioWPatch==0.2.12.8
+webrtcvad-wheels==2.0.14

@@ -1,0 +1,15 @@
+<Project Sdk="Microsoft.NET.Sdk">
+  <PropertyGroup>
+    <OutputType>Exe</OutputType>
+    <TargetFramework>net8.0</TargetFramework>
+    <ImplicitUsings>enable</ImplicitUsings>
+    <Nullable>enable</Nullable>
+  </PropertyGroup>
+  <ItemGroup>
+    <Compile Include="../../src/models/PairedCaptionPresenter.cs" Link="PairedCaptionPresenter.cs" />
+    <Compile Include="../../src/models/ProgressiveCaptionPresenter.cs" Link="ProgressiveCaptionPresenter.cs" />
+    <Compile Include="../../src/models/TranslationTaskQueue.cs" Link="TranslationTaskQueue.cs" />
+    <Compile Include="../../src/models/CaptionSentenceTracker.cs" Link="CaptionSentenceTracker.cs" />
+    <Compile Include="../../src/models/QwenCaptionProtocol.cs" Link="QwenCaptionProtocol.cs" />
+  </ItemGroup>
+</Project>
